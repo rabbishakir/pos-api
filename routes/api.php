@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function (){
     Route::post('/users',[AuthController::class,'register']);
     Route::get('/users',[AuthController::class,'index']);
-    Route::get('/users/{$id}',[AuthController::class,'show']);
+    Route::get('/users/{id}',[AuthController::class,'show']);
+    Route::patch('/users/{id}',[AuthController::class,'edit']);
+    Route::delete('/users/{id}',[AuthController::class,'destroy']);
 });
 
