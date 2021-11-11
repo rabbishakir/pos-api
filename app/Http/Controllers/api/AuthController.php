@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use http\Env\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\App;
 
 
 class AuthController extends Controller
@@ -26,18 +26,15 @@ class AuthController extends Controller
         ]);
 
         try{
-
             if($validator->fails()){
                 return error_response($validator->errors());
             }
-
             $user = new User();
             $user->name = $request->name;
             $user->password = Hash::make($request->password);
             $user->email = $request->email;
             $user->save();
             $data = $user->only('name','email');
-
             return success_response($data,__('custommsg.user.create.success'),201);
 
         }catch(Exception $exception){
@@ -105,7 +102,6 @@ class AuthController extends Controller
                 return error_response($validator->errors());
             }else{
 
-               /// return 123;
                $user->name = $request->name;
                $user->email = $request->email;
                $user->save();
@@ -115,6 +111,48 @@ class AuthController extends Controller
         }
 
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function login(Request $request){
+        $validator = Validator::make($request->all(),[
+            'email'=> 'required',
+            'password' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return error_response($validator->errors());
+        }else{
+             $credentials = $request->only('email', 'password');
+
+             if(auth()->attempt($credentials)){
+                 $token= auth()->attempt($credentials);
+                 return \response()->json([
+                     'token' => $token,
+                     'user' =>  [
+                         'name' => \auth()->user()->name,
+                         'email' => \auth()->user()->email,
+                         'password' => \auth()->user()->getAuthPassword(),
+
+                     ],
+
+                 ],200 );
+
+             }else{
+                 return response()->json(['error' => 'Unauthorized'], 401);
+             }
+
+        }
+
+    }
+    public function logout(){
+        auth()->logout();
+        return response()->json(['message' => 'Logged out Successfully'], 200);
+    }
+
 
 
 }

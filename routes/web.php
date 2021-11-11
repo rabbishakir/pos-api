@@ -14,5 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 route::get('/','api\AuthController@listUsers');
+Route::get('/login', function(){
+    return response()->json(['error' => 'Unauthorized'], 401);
+})->name('login');
 
 

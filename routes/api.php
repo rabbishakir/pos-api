@@ -15,11 +15,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('v1')->group(function (){
-    Route::post('/users',[AuthController::class,'register']);
-    Route::get('/users',[AuthController::class,'index']);
-    Route::get('/users/{id}',[AuthController::class,'show']);
-    Route::patch('/users/{id}',[AuthController::class,'edit']);
-    Route::delete('/users/{id}',[AuthController::class,'destroy']);
+Route::post('v1/auth/login', [AuthController::class,'login']);
+
+
+Route::prefix('v1')->middleware('auth:api')->group(function (){
+    Route::prefix('users')->group(function (){
+        Route::post('/',[AuthController::class,'register']);
+        Route::get('/',[AuthController::class,'index']);
+        Route::get('/{id}',[AuthController::class,'show']);
+        Route::patch('/{id}',[AuthController::class,'edit']);
+        Route::delete('/{id}',[AuthController::class,'destroy']);
+    });
+    Route::post('/auth/logout', [AuthController::class,'logout']);
+
+
 });
 
